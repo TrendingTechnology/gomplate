@@ -24,7 +24,11 @@ import (
 const isWindows = runtime.GOOS == "windows"
 
 // Hook up gocheck into the "go test" runner.
-func Test(t *testing.T) { check.TestingT(t) }
+func Test(t *testing.T) {
+	os.Setenv("LOG_FORMAT", "simple")
+	defer os.Unsetenv("LOG_FORMAT")
+	check.TestingT(t)
+}
 
 // a convenience...
 func inOutTest(c *check.C, i string, o string) {
@@ -47,6 +51,20 @@ func cmdWithStdin(c *check.C, args []string, in string) (o, e string, err error)
 	stdout, stderr := &bytes.Buffer{}, &bytes.Buffer{}
 	err = cmd.Main(ctx, args, stdin, stdout, stderr)
 	return stdout.String(), stderr.String(), err
+}
+
+func cmdWithDir(c *check.C, dir string, args ...string) (o, e string, err error) {
+	origWd, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	defer func() { os.Chdir(origWd) }()
+	err = os.Chdir(dir)
+	if err != nil {
+		panic(err)
+	}
+
+	return cmdTest(c, args...)
 }
 
 func cmdWithEnv(c *check.C, args []string, env map[string]string) (o, e string, err error) {

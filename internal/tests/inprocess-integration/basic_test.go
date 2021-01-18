@@ -8,6 +8,7 @@ import (
 	. "gopkg.in/check.v1"
 
 	"gotest.tools/v3/assert"
+	"gotest.tools/v3/assert/cmp"
 	"gotest.tools/v3/fs"
 )
 
@@ -165,8 +166,8 @@ func (s *BasicSuite) TestDelimsChangedThroughEnvVars(c *C) {
 
 func (s *BasicSuite) TestUnknownArgErrors(c *C) {
 	_, e, err := cmdTest(c, "-in", "flibbit")
-	assert.ErrorContains(c, err, `unknown command "flibbit" for "gomplate"`)
-	assert.Equal(c, "Error: unknown command \"flibbit\" for \"gomplate\"\n", e)
+	assert.ErrorContains(c, err, "unknown command \"flibbit\" for \"gomplate\"")
+	assert.Assert(c, cmp.Contains(e, "Error: unknown command \"flibbit\" for \"gomplate\"\n"))
 }
 
 func (s *BasicSuite) TestExecCommand(c *C) {
